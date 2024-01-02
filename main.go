@@ -4,7 +4,8 @@ import (
 	"context"
 	"go-redis/config"
 	"log"
-	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 const (
@@ -12,32 +13,32 @@ const (
 	HCACHE_NAME = "food2"
 )
 
+type Cache interface{}
+
 func main() {
 
-	cfg, err := config.LoadConfig("./")
+	cfg, err := config.LoadConfig(".")
 	if err != nil {
 		log.Fatal("failed to load env", err.Error())
 	}
 
 	ctx := context.Background()
-	rdb, err := config.InitRedisConn(cfg.RedisUrl, cfg.RedisPort, cfg.RedisPass, ctx)
-	if err != nil {
-		log.Fatalln("Redis connection was refused!", err)
-	}
 
-	err = rdb.Set(ctx, CACHE_NAME, "Test value", 10*time.Minute).Err()
+	rdb := config.NewRedisClient(cfg.RedisUrl, cfg.RedisPort, cfg.RedisPass)
+
+	con, err := rdb.InitRedisConnection(ctx)
 	if err != nil {
 		panic(err)
 	}
-
-	rdb.HSet(ctx, HCACHE_NAME, "Bakso", 10*time.Minute)
-
-	res, err := rdb.Get(ctx, CACHE_NAME).Result()
+	err = rdb.PutCacheTtl(ctx, con, "2024", "New Year", redis.KeepTTL)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+	}
+
+	res, err := rdb.GetCache(ctx, con, "2024")
+	if err != nil {
+		log.Println(err)
 	}
 	log.Println(res)
-
-	defer rdb.Close()
 
 }
