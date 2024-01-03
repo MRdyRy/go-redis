@@ -24,18 +24,14 @@ func main() {
 
 	ctx := context.Background()
 
-	rdb := config.NewRedisClient(cfg.RedisUrl, cfg.RedisPort, cfg.RedisPass)
+	rdb := config.NewRedisClient(ctx, cfg.RedisUrl, cfg.RedisPort, cfg.RedisPass)
 
-	con, err := rdb.InitRedisConnection(ctx)
-	if err != nil {
-		panic(err)
-	}
-	err = rdb.PutCacheTtl(ctx, con, "2024", "New Year", redis.KeepTTL)
+	err = rdb.PutCacheTtl(ctx, "2024", "New Year", redis.KeepTTL)
 	if err != nil {
 		log.Println(err)
 	}
 
-	res, err := rdb.GetCache(ctx, con, "2024")
+	res, err := rdb.GetCache(ctx, "2024")
 	if err != nil {
 		log.Println(err)
 	}
