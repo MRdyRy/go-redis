@@ -11,7 +11,7 @@ import (
 )
 
 /*
-author @Rudy Ryanto (RR59782X)
+author @Rudy Ryanto
 this class provide redis connection
 */
 
