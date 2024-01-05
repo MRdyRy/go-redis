@@ -24,7 +24,16 @@ func main() {
 
 	ctx := context.Background()
 
-	rdb := config.NewRedisClient(ctx, cfg.RedisUrl, cfg.RedisPort, cfg.RedisPass)
+	cacheFactory, err := config.NewCacheFactory(ctx, config.Cfg{
+		Url: cfg.RedisUrl, Port: cfg.RedisPort, Pass: cfg.RedisPass, Protocol: "http", User: "ryan",
+	}, "redis")
+	if err != nil {
+		panic(err)
+	}
+
+	rdb := cacheFactory.(config.RedisClient)
+
+	// rdb := config.NewRedisClient(ctx, cfg.RedisUrl, cfg.RedisPort, cfg.RedisPass)
 
 	err = rdb.PutCacheTtl(ctx, "2024", "New Year", redis.KeepTTL)
 	if err != nil {
